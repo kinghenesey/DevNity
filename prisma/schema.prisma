@@ -93,6 +93,7 @@ model User {
   crewMemberships CrewMember[]
   collabs             Collab[]
   collabApplications  CollabApplication[]
+  hqMemberships HqMember[]
 }
 
 model Skill {
@@ -135,6 +136,8 @@ model Build {
   updatedAt DateTime @updatedAt
 
   @@unique([ownerId, name])
+
+  hqLinks HqBuild[]
 }
 
 model Crew {
