@@ -14,13 +14,16 @@ export async function Header() {
             <span className="text-white font-semibold text-lg">DevNity</span>
           </Link>
 
-          {session?.user && (
-            <nav className="hidden sm:flex items-center gap-5 text-sm">
+          <nav className="hidden sm:flex items-center gap-5 text-sm">
+            <Link href="/crew" className="text-neutral-300 hover:text-white transition">
+              Crews
+            </Link>
+            {session?.user && (
               <Link href="/build/new" className="text-neutral-300 hover:text-white transition">
                 New Build
               </Link>
-            </nav>
-          )}
+            )}
+          </nav>
         </div>
 
         <div className="flex items-center gap-4">
