@@ -213,3 +213,48 @@ model CollabApplication {
 
   @@unique([collabId, userId])
 }
+
+enum HqRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Hq {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  visibility  CrewVisibility @default(PUBLIC)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   HqMember[]
+  buildLinks HqBuild[]
+}
+
+model HqMember {
+  id       String @id @default(cuid())
+  hqId     String
+  userId   String
+  role     HqRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  hq   Hq   @relation(fields: [hqId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([hqId, userId])
+}
+
+model HqBuild {
+  id      String @id @default(cuid())
+  hqId    String
+  buildId String
+  linkedAt DateTime @default(now())
+
+  hq    Hq    @relation(fields: [hqId], references: [id], onDelete: Cascade)
+  build Build @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  @@unique([hqId, buildId])
+}
