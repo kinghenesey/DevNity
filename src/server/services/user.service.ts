@@ -25,6 +25,14 @@ export async function getDevcardByUsername(username: string) {
     },
   })
 
+  if (!user) return null
+
+  const { builds, ...rest } = user
+  const cred = computeCred({ createdAt: user.createdAt, builds })
+
+  return { ...rest, cred }
+}
+
 export async function updateDevcard(
   userId: string,
   data: { bio?: string; handle?: string; country?: string; image?: string; skills: string[] }
@@ -60,12 +68,4 @@ export async function updateDevcard(
       })
     }
   })
-}
-
-  if (!user) return null
-
-  const { builds, ...rest } = user
-  const cred = computeCred({ createdAt: user.createdAt, builds })
-
-  return { ...rest, cred }
 }
