@@ -43,9 +43,14 @@ export default async function DevcardPage({
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{user.name || user.username}</h1>
             {isOwner && (
-              <span className="text-xs rounded-full border border-neutral-700 px-2 py-0.5 text-neutral-400">
-                You
-              </span>
+              <>
+                <span className="text-xs rounded-full border border-neutral-700 px-2 py-0.5 text-neutral-400">
+                  You
+                </span>
+                <Link href="/devcard/edit" className="text-xs text-indigo-400 hover:underline">
+                  Edit
+                </Link>
+              </>
             )}
           </div>
           <p className="text-neutral-400">
