@@ -15,6 +15,9 @@ export async function Header() {
           </Link>
 
           <nav className="hidden sm:flex items-center gap-5 text-sm">
+            <Link href="/feed" className="text-neutral-300 hover:text-white transition">
+              Feed
+            </Link>
             <Link href="/crew" className="text-neutral-300 hover:text-white transition">
               Crews
             </Link>
