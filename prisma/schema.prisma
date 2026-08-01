@@ -91,6 +91,8 @@ model User {
   builds       Build[]
   skills       UserSkill[]
   crewMemberships CrewMember[]
+  collabs             Collab[]
+  collabApplications  CollabApplication[]
 }
 
 model Skill {
@@ -159,4 +161,55 @@ model CrewMember {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([crewId, userId])
+}
+
+enum CollabBudget {
+  VOLUNTEER
+  REVENUE_SHARE
+  PAID
+}
+
+enum CollabStatus {
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Collab {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  rolesNeeded String[]     @default([])
+  budget      CollabBudget @default(VOLUNTEER)
+  deadline    DateTime?
+  experience  String?
+  status      CollabStatus @default(OPEN)
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  applications CollabApplication[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CollabApplication {
+  id      String            @id @default(cuid())
+  collabId String
+  userId  String
+  message String
+  status  ApplicationStatus @default(PENDING)
+
+  collab Collab @relation(fields: [collabId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([collabId, userId])
 }
