@@ -1,12 +1,14 @@
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { listBuildsForUsername } from "@/server/services/build.service"
+import { getCrewsForUser } from "@/server/services/crew.service"
 
 export default async function HomePage() {
   const session = await auth()
 
   if (session?.user?.username) {
     const builds = await listBuildsForUsername(session.user.username, session.user.id)
+    const crews = await getCrewsForUser(session.user.id)
 
     return (
       <div className="max-w-3xl mx-auto py-10 px-4 text-white">
@@ -56,6 +58,32 @@ export default async function HomePage() {
                 {build.description && (
                   <p className="text-neutral-400 text-sm mt-1">{build.description}</p>
                 )}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <h2 className="text-lg font-semibold mb-3 mt-8">Your Crews</h2>
+        {crews.length === 0 ? (
+          <p className="text-neutral-500 text-sm">
+            You haven&apos;t joined any Crews yet.{" "}
+            <Link href="/crew" className="text-indigo-400 hover:underline">
+              Browse Crews
+            </Link>
+            .
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {crews.map((crew) => (
+              <Link
+                key={crew.id}
+                href={"/crew/" + crew.slug}
+                className="block rounded-md border border-neutral-800 bg-neutral-900 p-4 hover:border-neutral-700 transition"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{crew.name}</span>
+                  <span className="text-xs text-neutral-500">{crew.role}</span>
+                </div>
               </Link>
             ))}
           </div>

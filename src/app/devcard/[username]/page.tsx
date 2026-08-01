@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import { getDevcardByUsername } from "@/server/services/user.service"
 import { listBuildsForUsername } from "@/server/services/build.service"
 import Image from "next/image"
+import { getPublicCrewsForUsername } from "@/server/services/crew.service"
 
 export default async function DevcardPage({
   params,
@@ -16,6 +17,7 @@ export default async function DevcardPage({
   if (!user) notFound()
 
   const builds = await listBuildsForUsername(username, session?.user?.id)
+  const crews = await getPublicCrewsForUsername(username)
   const isOwner = session?.user?.id === user.id
 
   const joined = new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -107,6 +109,23 @@ export default async function DevcardPage({
             </Link>
           ))}
         </div>
+      )}
+
+      {crews.length > 0 && (
+        <>
+          <h2 className="text-lg font-semibold mb-3 mt-8">Crews</h2>
+          <div className="flex gap-2 flex-wrap">
+            {crews.map((crew) => (
+              <Link
+                key={crew.id}
+                href={"/crew/" + crew.slug}
+                className="text-xs rounded-md bg-neutral-900 border border-neutral-800 px-3 py-1.5 hover:border-neutral-700 transition"
+              >
+                {crew.name}
+              </Link>
+            ))}
+          </div>
+        </>
       )}
 
       {isOwner && (
