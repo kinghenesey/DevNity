@@ -25,6 +25,43 @@ export async function getDevcardByUsername(username: string) {
     },
   })
 
+export async function updateDevcard(
+  userId: string,
+  data: { bio?: string; handle?: string; country?: string; image?: string; skills: string[] }
+) {
+  const skillNames = data.skills.map((s) => s.trim()).filter(Boolean)
+
+  await db.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        bio: data.bio?.trim() || null,
+        handle: data.handle?.trim() || null,
+        country: data.country?.trim() || null,
+        image: data.image?.trim() || null,
+      },
+    })
+
+    const skillRecords = await Promise.all(
+      skillNames.map((name) =>
+        tx.skill.upsert({ where: { name }, create: { name }, update: {} })
+      )
+    )
+
+    await tx.userSkill.deleteMany({
+      where: { userId, skillId: { notIn: skillRecords.map((s) => s.id) } },
+    })
+
+    for (const skill of skillRecords) {
+      await tx.userSkill.upsert({
+        where: { userId_skillId: { userId, skillId: skill.id } },
+        create: { userId, skillId: skill.id },
+        update: {},
+      })
+    }
+  })
+}
+
   if (!user) return null
 
   const { builds, ...rest } = user
