@@ -1,3 +1,4 @@
+import type { AdapterUser } from "next-auth/adapters"
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
@@ -5,8 +6,32 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
 
+const baseAdapter = PrismaAdapter(db)
+
+const adapter = {
+  ...baseAdapter,
+  createUser: async (data: Omit<AdapterUser, "id">) => {
+    const base =
+      (data.email?.split("@")[0] || data.name || "user")
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "")
+        .slice(0, 20) || "user"
+
+    let username = base
+    let suffix = 0
+    while (await db.user.findUnique({ where: { username } })) {
+      suffix++
+      username = `${base}${suffix}`
+    }
+
+    return db.user.create({
+      data: { ...data, username },
+    })
+  },
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(db),
+  adapter,
   session: { strategy: "jwt" },
   providers: [
     GitHub,
