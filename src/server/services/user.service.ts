@@ -1,7 +1,8 @@
 import { db } from "@/lib/db"
+import { computeCred } from "@/lib/cred"
 
 export async function getDevcardByUsername(username: string) {
-  return db.user.findUnique({
+  const user = await db.user.findUnique({
     where: { username },
     select: {
       id: true,
@@ -11,7 +12,6 @@ export async function getDevcardByUsername(username: string) {
       bio: true,
       country: true,
       image: true,
-      trustScore: true,
       createdAt: true,
       skills: {
         select: {
@@ -19,6 +19,16 @@ export async function getDevcardByUsername(username: string) {
           skill: { select: { name: true } },
         },
       },
+      builds: {
+        select: { updatedAt: true, statsSource: true },
+      },
     },
   })
+
+  if (!user) return null
+
+  const { builds, ...rest } = user
+  const cred = computeCred({ createdAt: user.createdAt, builds })
+
+  return { ...rest, cred }
 }

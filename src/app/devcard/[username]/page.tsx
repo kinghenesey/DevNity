@@ -59,7 +59,7 @@ export default async function DevcardPage({
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-semibold text-indigo-400">{user.trustScore}</div>
+          <div className="text-2xl font-semibold text-indigo-400">{user.cred}</div>
           <div className="text-xs text-neutral-500 uppercase tracking-wide">Cred</div>
         </div>
       </div>
