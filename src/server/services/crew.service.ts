@@ -94,3 +94,23 @@ export async function leaveCrew(slug: string, userId: string) {
 
   await db.crewMember.deleteMany({ where: { crewId: crew.id, userId } })
 }
+
+export async function getPublicCrewsForUsername(username: string) {
+  return db.crew.findMany({
+    where: {
+      visibility: "PUBLIC",
+      members: { some: { user: { username } } },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export async function getCrewsForUser(userId: string) {
+  const memberships = await db.crewMember.findMany({
+    where: { userId },
+    include: { crew: true },
+    orderBy: { joinedAt: "desc" },
+  })
+
+  return memberships.map((m) => ({ ...m.crew, role: m.role }))
+}
