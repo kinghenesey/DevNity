@@ -3,9 +3,8 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState("")
-  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -15,34 +14,28 @@ export default function RegisterPage() {
     setError(null)
     setLoading(true)
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, username, password }),
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
     })
 
-    if (!res.ok) {
-      const data = await res.json()
-      setError(typeof data.error === "string" ? data.error : "Registration failed")
-      setLoading(false)
+    setLoading(false)
+
+    if (res?.error) {
+      setError("Invalid email or password")
       return
     }
 
-    // Auto sign-in after successful registration
-    await signIn("credentials", {
-      email,
-      password,
-      redirect: true,
-      callbackUrl: "/",
-    })
+    window.location.href = "/"
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-white">Create your DevNity account</h1>
-          <p className="text-neutral-400 text-sm mt-1">Build. Collaborate. Grow.</p>
+          <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
+          <p className="text-neutral-400 text-sm mt-1">Log in to DevNity</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,23 +51,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-neutral-300 mb-1">Username</label>
-            <input
-              type="text"
-              required
-              minLength={3}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
             <label className="block text-sm text-neutral-300 mb-1">Password</label>
             <input
               type="password"
               required
-              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -88,7 +68,7 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full rounded-md bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2 font-medium transition"
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
 
@@ -109,9 +89,9 @@ export default function RegisterPage() {
         </button>
 
         <p className="text-center text-sm text-neutral-400">
-          Already have an account?{" "}
-          <a href="/login" className="text-indigo-400 hover:underline">
-            Log in
+          Don&apos;t have an account?{" "}
+          <a href="/register" className="text-indigo-400 hover:underline">
+            Sign up
           </a>
         </p>
       </div>
