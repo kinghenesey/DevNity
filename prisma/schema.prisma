@@ -17,6 +17,17 @@ enum VisibilityMode {
 
 // --- Auth.js required models ---
 
+enum CrewVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum CrewRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -79,6 +90,7 @@ model User {
   sessions     Session[]
   builds       Build[]
   skills       UserSkill[]
+  crewMemberships CrewMember[]
 }
 
 model Skill {
@@ -121,4 +133,30 @@ model Build {
   updatedAt DateTime @updatedAt
 
   @@unique([ownerId, name])
+}
+
+model Crew {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  visibility  CrewVisibility @default(PUBLIC)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members CrewMember[]
+}
+
+model CrewMember {
+  id       String   @id @default(cuid())
+  crewId   String
+  userId   String
+  role     CrewRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  crew Crew @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([crewId, userId])
 }
