@@ -77,7 +77,7 @@ model User {
 
   accounts     Account[]
   sessions     Session[]
-  repositories Repository[]
+  builds       Build[]
   skills       UserSkill[]
 }
 
@@ -100,7 +100,7 @@ model UserSkill {
   @@unique([userId, skillId])
 }
 
-model Repository {
+model Build {
   id          String         @id @default(cuid())
   name        String
   description String?
