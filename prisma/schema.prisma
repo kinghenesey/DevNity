@@ -94,6 +94,31 @@ model User {
   collabs             Collab[]
   collabApplications  CollabApplication[]
   hqMemberships HqMember[]
+
+  posts         Post[]
+  postReactions PostReaction[]
+
+  conversationParticipations ConversationParticipant[]
+  messages                   Message[]
+
+  questions Question[]
+  answers   Answer[]
+
+  coursesAuthored Course[]
+  enrollments     Enrollment[]
+
+  jobsPosted      Job[]
+  jobApplications JobApplication[]
+
+  marketplaceItems MarketplaceItem[]
+
+  eventsHosted    Event[]
+  eventAttendance EventAttendee[]
+
+  honors        UserHonor[]
+  notifications Notification[]
+
+  startups Startup[]
 }
 
 model Skill {
@@ -138,6 +163,7 @@ model Build {
   @@unique([ownerId, name])
 
   hqLinks HqBuild[]
+  posts   Post[]
 }
 
 model Crew {
@@ -235,6 +261,7 @@ model Hq {
 
   members   HqMember[]
   buildLinks HqBuild[]
+  jobs      Job[]
 }
 
 model HqMember {
@@ -260,4 +287,247 @@ model HqBuild {
   build Build @relation(fields: [buildId], references: [id], onDelete: Cascade)
 
   @@unique([hqId, buildId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  buildId   String?
+  createdAt DateTime @default(now())
+
+  author User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  build  Build?  @relation(fields: [buildId], references: [id], onDelete: SetNull)
+
+  reactions PostReaction[]
+}
+
+model PostReaction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+// ---------- Messaging ----------
+model Conversation {
+  id        String   @id @default(cuid())
+  isGroup   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Q&A ----------
+model Question {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  authorId  String
+  tags      String[] @default([])
+  createdAt DateTime @default(now())
+
+  author  User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  answers Answer[]
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  questionId String
+  authorId   String
+  body       String
+  accepted   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Learning (Dojo) ----------
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  authorId    String
+  createdAt   DateTime @default(now())
+
+  author  User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+  enrollments Enrollment[]
+}
+
+model Lesson {
+  id       String @id @default(cuid())
+  courseId String
+  title    String
+  content  String
+  order    Int
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  courseId  String
+  userId    String
+  startedAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+}
+
+// ---------- Careers (Gigs) ----------
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String?
+  remote      Boolean  @default(true)
+  hqId        String?
+  postedById  String
+  createdAt   DateTime @default(now())
+
+  hq          Hq?               @relation(fields: [hqId], references: [id], onDelete: SetNull)
+  postedBy    User              @relation(fields: [postedById], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id        String   @id @default(cuid())
+  jobId     String
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, userId])
+}
+
+// ---------- Marketplace ----------
+model MarketplaceItem {
+  id          String   @id @default(cuid())
+  sellerId    String
+  title       String
+  description String
+  priceCents  Int      @default(0)
+  category    String
+  createdAt   DateTime @default(now())
+
+  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Events ----------
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  online      Boolean  @default(true)
+  hostId      String
+  createdAt   DateTime @default(now())
+
+  host      User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  attendees EventAttendee[]
+}
+
+model EventAttendee {
+  id       String   @id @default(cuid())
+  eventId  String
+  userId   String
+  rsvpedAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+// ---------- Honors (achievements) ----------
+model Honor {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String
+
+  users UserHonor[]
+}
+
+model UserHonor {
+  id        String   @id @default(cuid())
+  userId    String
+  honorId   String
+  awardedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  honor Honor @relation(fields: [honorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, honorId])
+}
+
+// ---------- Pulse (notifications) ----------
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Startup Hub ----------
+model Startup {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  pitch       String
+  founderId   String
+  createdAt   DateTime @default(now())
+
+  founder      User               @relation(fields: [founderId], references: [id], onDelete: Cascade)
+  cofounderReqs CofounderRequest[]
+}
+
+model CofounderRequest {
+  id         String @id @default(cuid())
+  startupId  String
+  roleNeeded String
+  message    String
+
+  startup Startup @relation(fields: [startupId], references: [id], onDelete: Cascade)
 }
