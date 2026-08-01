@@ -12,10 +12,11 @@ const VISIBILITY_LABELS: Record<string, string> = {
 export default async function BuildPage({
   params,
 }: {
-  params: { username: string; build: string }
+  params: Promise<{ username: string; build: string }>
 }) {
+  const { username, build: buildName } = await params
   const session = await auth()
-  const build = await getBuildBySlug(params.username, params.build, session?.user?.id)
+  const build = await getBuildBySlug(username, buildName, session?.user?.id)
 
   if (!build) notFound()
 
@@ -27,7 +28,7 @@ export default async function BuildPage({
     <div className="max-w-3xl mx-auto py-10 px-4 text-white">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold">
-          {params.username}/{build.name}
+          {username}/{build.name}
         </h1>
         <span className="text-xs rounded-full border border-neutral-700 px-2 py-1 text-neutral-300">
           {VISIBILITY_LABELS[build.visibility]}
