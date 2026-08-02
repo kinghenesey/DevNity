@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import type { VisibilityMode } from "@prisma/client"
+import { awardHonor } from "./honor.service"
 
 interface CreateBuildInput {
   ownerId: string
@@ -11,7 +12,9 @@ interface CreateBuildInput {
 }
 
 export async function createBuild(input: CreateBuildInput) {
-  return db.build.create({ data: input })
+  const build = await db.build.create({ data: input })
+  await awardHonor(input.ownerId, "Builder")
+  return build
 }
 
 export async function getBuildBySlug(username: string, buildName: string, viewerId?: string) {
