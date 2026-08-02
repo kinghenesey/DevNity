@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { createNotification } from "./notification.service"
+import { awardHonor } from "./honor.service"
 
 function slugify(name: string) {
   return name
@@ -37,6 +38,9 @@ export async function createCrew(input: {
       data: { crewId: crew.id, userId: input.ownerId, role: "OWNER" },
     })
 
+    return crew
+  }).then(async (crew) => {
+    await awardHonor(input.ownerId, "Community Founder")
     return crew
   })
 }
