@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import { createNotification } from "./notification.service"
 
 export async function createCollab(input: {
   title: string
@@ -41,11 +42,24 @@ export async function getCollabById(id: string, viewerId?: string) {
 }
 
 export async function applyToCollab(collabId: string, userId: string, message: string) {
-  return db.collabApplication.upsert({
+  const result = await db.collabApplication.upsert({
     where: { collabId_userId: { collabId, userId } },
     create: { collabId, userId, message },
     update: { message },
   })
+
+  const collab = await db.collab.findUnique({ where: { id: collabId } })
+  const applicant = await db.user.findUnique({ where: { id: userId } })
+  if (collab && collab.ownerId !== userId) {
+    await createNotification({
+      userId: collab.ownerId,
+      type: "collab_application",
+      message: (applicant?.name || applicant?.username || "Someone") + " applied to " + collab.title,
+      link: "/collab/" + collabId,
+    })
+  }
+
+  return result
 }
 
 export async function listCollabsForUser(userId: string) {
