@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import { createNotification } from "./notification.service"
 
 export async function createPost(input: { authorId: string; content: string; buildId?: string }) {
   return db.post.create({ data: input })
@@ -52,5 +53,17 @@ export async function toggleReaction(postId: string, userId: string) {
   }
 
   await db.postReaction.create({ data: { postId, userId } })
+
+  const post = await db.post.findUnique({ where: { id: postId } })
+  const reactor = await db.user.findUnique({ where: { id: userId } })
+  if (post && post.authorId !== userId) {
+    await createNotification({
+      userId: post.authorId,
+      type: "post_reaction",
+      message: (reactor?.name || reactor?.username || "Someone") + " reacted to your post",
+      link: "/feed",
+    })
+  }
+
   return { reacted: true }
 }
