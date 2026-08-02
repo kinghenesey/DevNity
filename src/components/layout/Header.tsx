@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { auth, signOut } from "@/lib/auth"
+import { NotificationBell } from "@/components/notification/NotificationBell"
 
 export async function Header() {
   const session = await auth()
@@ -38,6 +39,7 @@ export async function Header() {
         <div className="flex items-center gap-4">
           {session?.user ? (
             <>
+              <NotificationBell />
               <Link
                 href={"/devcard/" + session.user.username}
                 className="flex items-center gap-2 text-sm text-neutral-300 hover:text-white transition"
