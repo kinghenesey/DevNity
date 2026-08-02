@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { createNotification } from "./notification.service"
+import { awardHonor } from "./honor.service"
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
@@ -24,6 +25,9 @@ export async function createHq(input: {
       data: { name: input.name, slug, description: input.description, visibility: input.visibility },
     })
     await tx.hqMember.create({ data: { hqId: hq.id, userId: input.ownerId, role: "OWNER" } })
+    return hq
+  }).then(async (hq) => {
+    await awardHonor(input.ownerId, "Organizer")
     return hq
   })
 }

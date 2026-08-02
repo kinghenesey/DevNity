@@ -95,6 +95,8 @@ export async function joinCrew(slug: string, userId: string) {
     })
   }
 
+  await awardHonor(userId, "Team Player")
+
   return result
 }
 

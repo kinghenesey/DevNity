@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { createNotification } from "./notification.service"
+import { awardHonor } from "./honor.service"
 
 export async function createCollab(input: {
   title: string
@@ -58,6 +59,7 @@ export async function applyToCollab(collabId: string, userId: string, message: s
       link: "/collab/" + collabId,
     })
   }
+  await awardHonor(userId, "Collaborator")
 
   return result
 }
