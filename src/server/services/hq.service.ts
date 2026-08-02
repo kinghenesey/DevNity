@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import { createNotification } from "./notification.service"
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
@@ -71,11 +72,20 @@ export async function addMember(slug: string, actingUserId: string, targetUserna
   const target = await db.user.findUnique({ where: { username: targetUsername } })
   if (!target) throw new Error("User not found")
 
-  return db.hqMember.upsert({
+  const result = await db.hqMember.upsert({
     where: { hqId_userId: { hqId: hq.id, userId: target.id } },
     create: { hqId: hq.id, userId: target.id, role },
     update: {},
   })
+
+  await createNotification({
+    userId: target.id,
+    type: "hq_added",
+    message: "You were added to " + hq.name,
+    link: "/hq/" + hq.slug,
+  })
+
+  return result
 }
 
 export async function leaveHq(slug: string, userId: string) {
