@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import { createNotification } from "./notification.service"
 
 function slugify(name: string) {
   return name
@@ -73,11 +74,24 @@ export async function joinCrew(slug: string, userId: string) {
   const crew = await db.crew.findUnique({ where: { slug } })
   if (!crew) throw new Error("Crew not found")
 
-  return db.crewMember.upsert({
+  const result = await db.crewMember.upsert({
     where: { crewId_userId: { crewId: crew.id, userId } },
     create: { crewId: crew.id, userId, role: "MEMBER" },
     update: {},
   })
+
+  const owner = await db.crewMember.findFirst({ where: { crewId: crew.id, role: "OWNER" } })
+  if (owner && owner.userId !== userId) {
+    const user = await db.user.findUnique({ where: { id: userId } })
+    await createNotification({
+      userId: owner.userId,
+      type: "crew_join",
+      message: (user?.name || user?.username || "Someone") + " joined " + crew.name,
+      link: "/crew/" + crew.slug,
+    })
+  }
+
+  return result
 }
 
 export async function leaveCrew(slug: string, userId: string) {
