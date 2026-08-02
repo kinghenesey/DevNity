@@ -2,6 +2,9 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { listBuildsForUsername } from "@/server/services/build.service"
 import { getCrewsForUser } from "@/server/services/crew.service"
+import { listFeed } from "@/server/services/post.service"
+import { PostComposer } from "@/components/post/PostComposer"
+import { PostList } from "@/components/post/PostList"
 
 export default async function HomePage() {
   const session = await auth()
@@ -9,6 +12,7 @@ export default async function HomePage() {
   if (session?.user?.username) {
     const builds = await listBuildsForUsername(session.user.username, session.user.id)
     const crews = await getCrewsForUser(session.user.id)
+    const feedPosts = await listFeed(session.user.id, 10)
 
     return (
       <div className="max-w-3xl mx-auto py-10 px-4 text-white">
@@ -88,6 +92,12 @@ export default async function HomePage() {
             ))}
           </div>
         )}
+
+        <h2 className="text-lg font-semibold mb-3 mt-8">Recent Posts</h2>
+        <div className="mb-4">
+          <PostComposer myBuilds={builds} />
+        </div>
+        <PostList posts={feedPosts} />
       </div>
     )
   }

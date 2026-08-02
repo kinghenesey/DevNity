@@ -5,6 +5,8 @@ import { getDevcardByUsername } from "@/server/services/user.service"
 import { listBuildsForUsername } from "@/server/services/build.service"
 import Image from "next/image"
 import { getPublicCrewsForUsername } from "@/server/services/crew.service"
+import { listPostsForUsername } from "@/server/services/post.service"
+import { PostList } from "@/components/post/PostList"
 
 export default async function DevcardPage({
   params,
@@ -18,6 +20,7 @@ export default async function DevcardPage({
 
   const builds = await listBuildsForUsername(username, session?.user?.id)
   const crews = await getPublicCrewsForUsername(username)
+  const posts = await listPostsForUsername(username, session?.user?.id)
   const isOwner = session?.user?.id === user.id
 
   const joined = new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -127,6 +130,9 @@ export default async function DevcardPage({
           </div>
         </>
       )}
+
+      <h2 className="text-lg font-semibold mb-3 mt-8">Posts</h2>
+      <PostList posts={posts} showAuthor={false} />
 
       {isOwner && (
         <Link href="/build/new" className="inline-block mt-6 text-sm text-indigo-400 hover:underline">
