@@ -18,19 +18,25 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
 
-  async function fetchNotifications() {
-    const res = await fetch("/api/notifications")
-    if (res.ok) {
-      const data = await res.json()
-      setNotifications(data.notifications)
-      setUnreadCount(data.unreadCount)
-    }
-  }
-
   useEffect(() => {
-    fetchNotifications()
-    const interval = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(interval)
+    let ignore = false
+
+    async function load() {
+      const res = await fetch("/api/notifications")
+      if (res.ok && !ignore) {
+        const data = await res.json()
+        setNotifications(data.notifications)
+        setUnreadCount(data.unreadCount)
+      }
+    }
+
+    load()
+    const interval = setInterval(load, 30000)
+
+    return () => {
+      ignore = true
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
