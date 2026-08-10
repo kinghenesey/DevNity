@@ -87,6 +87,20 @@ export default async function DevcardPage({
         </div>
       )}
 
+      {user.honors.length > 0 && (
+        <div className="flex gap-2 flex-wrap mb-8">
+          {user.honors.map((h) => (
+            <span
+              key={h.name}
+              title={h.description}
+              className="text-xs rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 px-3 py-1"
+            >
+              🏆 {h.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       <h2 className="text-lg font-semibold mb-3">Builds</h2>
       {builds.length === 0 ? (
         <p className="text-neutral-500 text-sm">
