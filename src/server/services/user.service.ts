@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { computeCred } from "@/lib/cred"
+import { listHonorsForUser } from "./honor.service"
 
 export async function getDevcardByUsername(username: string) {
   const user = await db.user.findUnique({
@@ -29,8 +30,9 @@ export async function getDevcardByUsername(username: string) {
 
   const { builds, ...rest } = user
   const cred = computeCred({ createdAt: user.createdAt, builds })
+  const honors = await listHonorsForUser(user.id)
 
-  return { ...rest, cred }
+  return { ...rest, cred, honors }
 }
 
 export async function updateDevcard(
