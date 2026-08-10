@@ -7,6 +7,7 @@ const HONOR_DEFINITIONS: Record<string, string> = {
   "Team Player": "Joined your first Crew",
   "Collaborator": "Applied to your first Collab",
   "Organizer": "Started your first HQ",
+  "Recruiter": "Posted your first Gig",
 }
 
 async function getOrCreateHonor(name: string) {
