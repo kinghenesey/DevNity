@@ -40,6 +40,9 @@ export async function Header() {
             <Link href="/marketplace" className="text-neutral-300 hover:text-white transition">
               Marketplace
             </Link>
+            <Link href="/event" className="text-neutral-300 hover:text-white transition">
+              Events
+            </Link>
             {session?.user && (
               <Link href="/build/new" className="text-neutral-300 hover:text-white transition">
                 New Build
