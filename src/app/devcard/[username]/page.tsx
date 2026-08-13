@@ -7,6 +7,7 @@ import Image from "next/image"
 import { getPublicCrewsForUsername } from "@/server/services/crew.service"
 import { listPostsForUsername } from "@/server/services/post.service"
 import { PostList } from "@/components/post/PostList"
+import { MessageButton } from "@/components/message/MessageButton"
 
 export default async function DevcardPage({
   params,
@@ -68,6 +69,7 @@ export default async function DevcardPage({
             <span>Joined {joined}</span>
           </div>
         </div>
+        {!isOwner && session?.user && <MessageButton username={user.username} />}
         <div className="text-right">
           <div className="text-2xl font-semibold text-indigo-400">{user.cred}</div>
           <div className="text-xs text-neutral-500 uppercase tracking-wide">Cred</div>
