@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { getBuildBySlug } from "@/server/services/build.service"
+import { RecognitionButton } from "@/components/recognition/RecognitionButton"
+import { getRecognitionInfo } from "@/server/services/recognition.service"
 
 const VISIBILITY_LABELS: Record<string, string> = {
   PUBLIC: "Public",
@@ -20,6 +22,8 @@ export default async function BuildPage({
 
   if (!build) notFound()
 
+  const recognition = await getRecognitionInfo("build", build.id, session?.user?.id)
+
   const codeVisible = build.visibility === "PUBLIC" || build.visibility === "PRIVATE"
   const readmeOnly = build.visibility === "SHOWCASE"
   const statsOnly = build.visibility === "STATISTICS"
@@ -30,9 +34,17 @@ export default async function BuildPage({
         <h1 className="text-2xl font-semibold">
           {username}/{build.name}
         </h1>
-        <span className="text-xs rounded-full border border-neutral-700 px-2 py-1 text-neutral-300">
-          {VISIBILITY_LABELS[build.visibility]}
-        </span>
+        <div className="flex items-center gap-2">
+          <RecognitionButton
+            targetType="build"
+            targetId={build.id}
+            initialRecognized={recognition.recognized}
+            initialCount={recognition.count}
+          />
+          <span className="text-xs rounded-full border border-neutral-700 px-2 py-1 text-neutral-300">
+            {VISIBILITY_LABELS[build.visibility]}
+          </span>
+        </div>
       </div>
 
       {build.description && <p className="text-neutral-400 mb-6">{build.description}</p>}

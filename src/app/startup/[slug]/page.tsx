@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth"
 import { getStartupBySlug } from "@/server/services/startup.service"
 import { AddRequestForm } from "@/components/startup/AddRequestForm"
 import { InterestButton } from "@/components/startup/InterestButton"
+import { RecognitionButton } from "@/components/recognition/RecognitionButton"
+import { getRecognitionInfo } from "@/server/services/recognition.service"
 
 export default async function StartupPage({
   params,
@@ -12,7 +14,10 @@ export default async function StartupPage({
   const { slug } = await params
   const session = await auth()
   const startup = await getStartupBySlug(slug, session?.user?.id)
+
   if (!startup) notFound()
+
+  const recognition = await getRecognitionInfo("startup", startup.id, session?.user?.id)
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 text-white">
@@ -20,6 +25,12 @@ export default async function StartupPage({
       <p className="text-neutral-500 text-sm mb-6">
         by {startup.founder.name || startup.founder.username}
       </p>
+      <RecognitionButton
+        targetType="startup"
+        targetId={startup.id}
+        initialRecognized={recognition.recognized}
+        initialCount={recognition.count}
+      />
 
       <p className="text-neutral-300 mb-8">{startup.pitch}</p>
 

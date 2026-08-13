@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth"
 import { getQuestionById } from "@/server/services/qa.service"
 import { AnswerForm } from "@/components/qa/AnswerForm"
 import { AcceptButton } from "@/components/qa/AcceptButton"
+import { RecognitionButton } from "@/components/recognition/RecognitionButton"
+import { getRecognitionInfoBulk } from "@/server/services/recognition.service"
 
 export default async function QuestionPage({
   params,
@@ -12,7 +14,11 @@ export default async function QuestionPage({
   const { id } = await params
   const session = await auth()
   const question = await getQuestionById(id)
+
   if (!question) notFound()
+
+  const answerIds = question.answers.map((a) => a.id)
+  const getInfo = await getRecognitionInfoBulk("answer", answerIds, session?.user?.id)
 
   const isAuthor = session?.user?.id === question.authorId
   const hasAccepted = question.answers.some((a) => a.accepted)
@@ -46,9 +52,17 @@ export default async function QuestionPage({
             <p className="text-neutral-200 text-sm whitespace-pre-wrap">{a.body}</p>
             <div className="flex items-center justify-between mt-3">
               <p className="text-neutral-500 text-xs">by {a.author.name || a.author.username}</p>
-              {isAuthor && !hasAccepted && (
-                <AcceptButton questionId={question.id} answerId={a.id} />
-              )}
+              <div className="flex items-center gap-2">
+                <RecognitionButton
+                  targetType="answer"
+                  targetId={a.id}
+                  initialRecognized={getInfo(a.id).recognized}
+                  initialCount={getInfo(a.id).count}
+                />
+                {isAuthor && !hasAccepted && (
+                  <AcceptButton questionId={question.id} answerId={a.id} />
+                )}
+              </div>
             </div>
           </div>
         ))}
