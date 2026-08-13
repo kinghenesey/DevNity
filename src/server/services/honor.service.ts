@@ -17,6 +17,7 @@ const HONOR_DEFINITIONS: Record<string, string> = {
   "Curious Mind": "Asked your first Question",
   "Helper": "Posted your first Answer",
   "Trusted Answer": "Had an answer accepted",
+  "Connector": "Followed your first developer",
 }
 
 async function getOrCreateHonor(name: string) {
