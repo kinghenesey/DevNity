@@ -17,6 +17,11 @@ export default async function ConversationPage({
 
   const otherUser = conversation.participants.find((p) => p.userId !== session.user.id)?.user
 
+  const initialMessages = conversation.messages.map((m) => ({
+    ...m,
+    createdAt: m.createdAt.toISOString(),
+  }))
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-4 text-white">
       <h1 className="text-xl font-semibold mb-6">
@@ -25,7 +30,7 @@ export default async function ConversationPage({
       <ConversationThread
         conversationId={id}
         currentUserId={session.user.id}
-        initialMessages={conversation.messages}
+        initialMessages={initialMessages}
       />
     </div>
   )
