@@ -14,6 +14,9 @@ const HONOR_DEFINITIONS: Record<string, string> = {
   "Instructor": "Created your first Course",
   "Student": "Enrolled in your first Course",
   "Course Completer": "Completed a Course",
+  "Curious Mind": "Asked your first Question",
+  "Helper": "Posted your first Answer",
+  "Trusted Answer": "Had an answer accepted",
 }
 
 async function getOrCreateHonor(name: string) {
