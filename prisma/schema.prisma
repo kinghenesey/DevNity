@@ -400,6 +400,7 @@ model Enrollment {
   courseId  String
   userId    String
   startedAt DateTime @default(now())
+  completedLessonIds String[] @default([])
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
