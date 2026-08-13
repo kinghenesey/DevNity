@@ -8,6 +8,8 @@ import { getPublicCrewsForUsername } from "@/server/services/crew.service"
 import { listPostsForUsername } from "@/server/services/post.service"
 import { PostList } from "@/components/post/PostList"
 import { MessageButton } from "@/components/message/MessageButton"
+import { getFollowStatus, getFollowCounts } from "@/server/services/follow.service"
+import { FollowButton } from "@/components/follow/FollowButton"
 
 export default async function DevcardPage({
   params,
@@ -23,6 +25,8 @@ export default async function DevcardPage({
   const crews = await getPublicCrewsForUsername(username)
   const posts = await listPostsForUsername(username, session?.user?.id)
   const isOwner = session?.user?.id === user.id
+  const { followers, following } = await getFollowCounts(user.id)
+  const { isFollowing, isConnection } = await getFollowStatus(session?.user?.id, user.id)
 
   const joined = new Date(user.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
@@ -58,6 +62,14 @@ export default async function DevcardPage({
                 </Link>
               </>
             )}
+            {isConnection && (
+              <span className="text-xs rounded-full border border-indigo-800 bg-indigo-950 text-indigo-300 px-2 py-0.5">
+                Connection
+              </span>
+            )}
+            {!isOwner && session?.user && (
+              <FollowButton username={user.username} initialFollowing={isFollowing} />
+            )}
           </div>
           <p className="text-neutral-400">
             @{user.username}
@@ -67,6 +79,12 @@ export default async function DevcardPage({
           <div className="flex gap-4 mt-3 text-sm text-neutral-500">
             {user.country && <span>{user.country}</span>}
             <span>Joined {joined}</span>
+            <Link href={"/devcard/" + user.username + "/followers"} className="hover:text-neutral-300">
+              {followers} followers
+            </Link>
+            <Link href={"/devcard/" + user.username + "/following"} className="hover:text-neutral-300">
+              {following} following
+            </Link>
           </div>
         </div>
         {!isOwner && session?.user && <MessageButton username={user.username} />}
