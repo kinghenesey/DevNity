@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ReactionButton } from "./ReactionButton"
+import { RecognitionButton } from "@/components/recognition/RecognitionButton"
 
 type PostItem = {
   id: string
@@ -43,9 +43,10 @@ export function PostList({ posts, showAuthor = true }: { posts: PostItem[]; show
             <span className="text-xs text-neutral-500">
               {new Date(post.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
             </span>
-            <ReactionButton
-              postId={post.id}
-              initialReacted={post.viewerReacted}
+            <RecognitionButton
+              targetType="post"
+              targetId={post.id}
+              initialRecognized={post.viewerReacted}
               initialCount={post.reactionCount}
             />
           </div>
