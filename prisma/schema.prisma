@@ -98,6 +98,9 @@ model User {
   posts         Post[]
   postReactions PostReaction[]
 
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
+
   conversationParticipations ConversationParticipant[]
   messages                   Message[]
 
