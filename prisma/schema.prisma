@@ -97,6 +97,7 @@ model User {
 
   posts         Post[]
   postReactions PostReaction[]
+  recognitions Recognition[]
 
   following Follow[] @relation("Following")
   followers Follow[] @relation("Followers")
@@ -546,4 +547,16 @@ model Follow {
   following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+}
+
+model Recognition {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType String   // "post" | "build" | "answer" | "startup"
+  targetId   String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
 }
