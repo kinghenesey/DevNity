@@ -43,6 +43,9 @@ export async function Header() {
             <Link href="/event" className="text-neutral-300 hover:text-white transition">
               Events
             </Link>
+            <Link href="/dojo" className="text-neutral-300 hover:text-white transition">
+              Dojo
+            </Link>
             {session?.user && (
               <Link href="/build/new" className="text-neutral-300 hover:text-white transition">
                 New Build
