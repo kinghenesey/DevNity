@@ -59,7 +59,10 @@ export function ConversationThread({
 
     if (res.ok) {
       const message = await res.json()
-      setMessages((prev) => [...prev, { ...message, sender: { id: currentUserId, username: "", name: "" } }])
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === message.id)) return prev
+        return [...prev, { ...message, sender: { id: currentUserId, username: "", name: "" } }]
+      })
       setContent("")
     }
   }
