@@ -75,6 +75,8 @@ model User {
 
   // Auth.js credentials support (only used for email/password signup)
   passwordHash  String?
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean @default(false)
 
   // DevNity Identity fields
   username      String    @unique
@@ -98,6 +100,8 @@ model User {
   posts         Post[]
   postReactions PostReaction[]
   recognitions Recognition[]
+
+  loginEvents LoginEvent[]
 
   following Follow[] @relation("Following")
   followers Follow[] @relation("Followers")
@@ -559,4 +563,13 @@ model Recognition {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, targetType, targetId])
+}
+
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  method    String   // "credentials" | "github"
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
