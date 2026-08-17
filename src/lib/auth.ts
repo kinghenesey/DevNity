@@ -77,17 +77,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.id = user.id
         token.username = user.username
+
+        if (account && account.provider !== "credentials" && user.twoFactorEnabled) {
+          token.needs2FA = true
+        }
       }
+
+      if (trigger === "update" && session?.verified2FA) {
+        token.needs2FA = false
+      }
+
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
         session.user.username = token.username as string
+        session.user.needs2FA = !!token.needs2FA
       }
       return session
     },

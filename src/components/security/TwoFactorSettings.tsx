@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export function TwoFactorSettings({ initialEnabled }: { initialEnabled: boolean }) {
   const router = useRouter()
@@ -72,7 +73,7 @@ export function TwoFactorSettings({ initialEnabled }: { initialEnabled: boolean 
     return (
       <div className="rounded-md border border-neutral-800 bg-neutral-900 p-4 space-y-3">
         <p className="text-sm text-neutral-300">Scan this with your authenticator app:</p>
-        <img src={qrDataUrl} alt="2FA QR code" className="w-40 h-40" />
+        <Image src={qrDataUrl} alt="2FA QR code" width={160} height={160} unoptimized />
         {secret && (
           <p className="text-xs text-neutral-500 break-all">
             Or enter manually: <span className="text-neutral-400">{secret}</span>
