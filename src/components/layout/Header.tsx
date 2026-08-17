@@ -80,6 +80,9 @@ export async function Header() {
                 )}
                 <span>{session.user.username}</span>
               </Link>
+              <Link href="/settings/security" className="text-sm text-neutral-500 hover:text-white transition">
+                Security
+              </Link>
               <form
                 action={async () => {
                   "use server"
