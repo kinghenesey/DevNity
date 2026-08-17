@@ -62,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (user.twoFactorEnabled) {
           const code = credentials.code as string | undefined
           if (!code) throw new Error("2FA_REQUIRED")
-          if (!user.twoFactorSecret || !verifyTwoFactorCode(user.twoFactorSecret, code)) {
+          if (!user.twoFactorSecret || !(await verifyTwoFactorCode(user.twoFactorSecret, code))) {
             throw new Error("2FA_INVALID")
           }
         }
