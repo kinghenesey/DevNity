@@ -1,10 +1,11 @@
-import type { AdapterUser } from "next-auth/adapters"
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
+import { verifyTwoFactorCode, logLogin } from "@/server/services/security.service"
+import type { AdapterUser } from "next-auth/adapters"
 
 const baseAdapter = PrismaAdapter(db)
 
@@ -40,6 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        code: { label: "2FA Code", type: "text" },
       },
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) return null
@@ -56,6 +58,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         if (!isValid) return null
+
+        if (user.twoFactorEnabled) {
+          const code = credentials.code as string | undefined
+          if (!code) throw new Error("2FA_REQUIRED")
+          if (!user.twoFactorSecret || !verifyTwoFactorCode(user.twoFactorSecret, code)) {
+            throw new Error("2FA_INVALID")
+          }
+        }
 
         return {
           id: user.id,
@@ -81,5 +91,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session
     },
+  },
+  events: {
+    async signIn({ user, account }) {
+      if (user.id) {
+        await logLogin(user.id, account?.provider || "credentials")
+      }
+    },
+  },
+  pages: {
+    signIn: "/login",
   },
 })
