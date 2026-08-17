@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/layout/Header";
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +21,16 @@ export const metadata: Metadata = {
   description: "Build. Collaborate. Grow. One ecosystem for developers.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth()
+  if (session?.user?.needs2FA) {
+    redirect("/verify-2fa")
+  }
+
   return (
     <html
       lang="en"
